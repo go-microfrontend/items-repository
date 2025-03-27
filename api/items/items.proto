@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package items;
+
+option go_package = "./pkg/items;items";
+
+service ItemService {
+  rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
+  rpc GetItemByID(GetItemByIDRequest) returns (Item);
+  rpc GetItems(GetItemsRequest) returns (GetItemsResponse);
+}
+
+message CreateItemRequest {
+  string name = 1;
+  string description = 2;
+  string type = 3;
+  int32 weight_in_grams = 4;
+}
+
+message CreateItemResponse {
+  string id = 1;
+}
+
+message GetItemByIDRequest {
+  string id = 1;
+}
+
+message Item {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string type = 4;
+  int32 weight_in_grams = 5;
+}
+
+message GetItemsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message GetItemsResponse {
+  repeated Item items = 1;
+}
