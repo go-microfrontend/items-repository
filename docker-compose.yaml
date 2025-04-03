@@ -4,10 +4,12 @@ services:
     depends_on:
       - db
     environment:
-      - GRPC_PORT=:50051
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
-    ports:
-      - "50051:50051"
+      - TEMPORAL_ADDR=temporal:7233
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres  # Resolves via app-network
+      - TASK_QUEUE=items-repository
+    networks:
+      - app-network
+      - temporal-network
 
   db:
     image: postgres:17
@@ -20,6 +22,14 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
 
 volumes:
   pgdata:
+
+networks:
+  app-network:
+    driver: bridge
+  temporal-network:
+    external: true
