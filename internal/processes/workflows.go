@@ -3,6 +3,7 @@ package processes
 import (
 	"time"
 
+	"github.com/pkg/errors"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 
@@ -19,25 +20,24 @@ var itemsActivityOptions = workflow.ActivityOptions{
 	},
 }
 
-var Workflows = []any{CreateItemWorkflow, GetItemByIDWorkflow, GetItemsWorkflow}
+var Workflows = []any{CreateItemWF, GetItemByIDWF, GetItemsWF}
 
-func CreateItemWorkflow(ctx workflow.Context, arg repo.CreateItemParams) (string, error) {
+func CreateItemWF(ctx workflow.Context, arg repo.CreateItemParams) error {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
-	var id string
-	err := workflow.ExecuteActivity(ctx, "CreateItem", arg).Get(ctx, &id)
+	err := workflow.ExecuteActivity(ctx, "CreateItem", arg).Get(ctx, nil)
 	if err != nil {
-		return "", err
+		return errors.Wrap(err, "executing CreateItem activity")
 	}
 
-	return id, nil
+	return nil
 }
 
-func GetItemByIDWorkflow(ctx workflow.Context, id string) (*repo.Item, error) {
+func GetItemByIDWF(ctx workflow.Context, id string) (*repo.Item, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
 	var item repo.Item
-	err := workflow.ExecuteActivity(ctx, "GetItemByID", id).Get(ctx, &item)
+	err := workflow.ExecuteActivity(ctx, "executing GetItemByID activity", id).Get(ctx, &item)
 	if err != nil {
 		return nil, err
 	}
@@ -45,11 +45,11 @@ func GetItemByIDWorkflow(ctx workflow.Context, id string) (*repo.Item, error) {
 	return &item, nil
 }
 
-func GetItemsWorkflow(ctx workflow.Context, arg repo.GetItemsParams) ([]repo.Item, error) {
+func GetItemsWF(ctx workflow.Context, arg repo.GetItemsParams) ([]repo.Item, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
 	var items []repo.Item
-	err := workflow.ExecuteActivity(ctx, "GetItems", arg).Get(ctx, &items)
+	err := workflow.ExecuteActivity(ctx, "executing GetItems activity", arg).Get(ctx, &items)
 	if err != nil {
 		return nil, err
 	}

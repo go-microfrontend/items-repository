@@ -1,35 +1,37 @@
 services:
   app:
     build: .
+    container_name: ir-app
     depends_on:
       - db
     environment:
       - TEMPORAL_ADDR=temporal:7233
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres  # Resolves via app-network
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - TASK_QUEUE=items-repository
     networks:
-      - app-network
+      - ir-network
       - temporal-network
 
   db:
     image: postgres:17
+    container_name: ir-db
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
-    ports:
-      - "5432:5432"
+    # ports:
+      # - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - app-network
+      - ir-network
 
 volumes:
   pgdata:
 
 networks:
-  app-network:
+  ir-network:
     driver: bridge
   temporal-network:
     external: true
