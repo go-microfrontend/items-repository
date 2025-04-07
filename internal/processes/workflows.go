@@ -37,9 +37,9 @@ func GetItemByIDWF(ctx workflow.Context, id string) (*repo.Item, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
 	var item repo.Item
-	err := workflow.ExecuteActivity(ctx, "executing GetItemByID activity", id).Get(ctx, &item)
+	err := workflow.ExecuteActivity(ctx, "GetItemByID", id).Get(ctx, &item)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "executing GetItemByID activity")
 	}
 
 	return &item, nil
@@ -49,9 +49,9 @@ func GetItemsWF(ctx workflow.Context, arg repo.GetItemsParams) ([]repo.Item, err
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
 	var items []repo.Item
-	err := workflow.ExecuteActivity(ctx, "executing GetItems activity", arg).Get(ctx, &items)
+	err := workflow.ExecuteActivity(ctx, "GetItems", arg).Get(ctx, &items)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "executing GetItems activity")
 	}
 
 	return items, nil
