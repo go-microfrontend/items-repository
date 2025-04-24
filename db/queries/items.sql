@@ -3,9 +3,10 @@ Insert Into items (
   name,
   description,
   type,
-  weight_in_grams
+  weight_in_grams,
+  amount
 )
-Values ($1, $2, $3, $4)
+Values ($1, $2, $3, $4, $5)
 Returning id;
 
 -- name: GetItemByID :one
@@ -16,3 +17,9 @@ Where id = $1 Limit 1;
 Select * From items
 Order By Name
 Limit $1 Offset $2;
+
+-- name: GetItemsByType :many
+Select * From items
+Where Type = $1
+Order By Name
+Limit $2 Offset $3;

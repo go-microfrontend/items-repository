@@ -8,7 +8,7 @@ package repository
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createItem = `-- name: CreateItem :one
@@ -16,9 +16,10 @@ Insert Into items (
   name,
   description,
   type,
-  weight_in_grams
+  weight_in_grams,
+  amount
 )
-Values ($1, $2, $3, $4)
+Values ($1, $2, $3, $4, $5)
 Returning id
 `
 
@@ -27,16 +28,18 @@ type CreateItemParams struct {
 	Description   string
 	Type          string
 	WeightInGrams int32
+	Amount        int32
 }
 
-func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (pgtype.UUID, error) {
+func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createItem,
 		arg.Name,
 		arg.Description,
 		arg.Type,
 		arg.WeightInGrams,
+		arg.Amount,
 	)
-	var id pgtype.UUID
+	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
@@ -46,7 +49,7 @@ Select id, name, description, type, weight_in_grams, amount From items
 Where id = $1 Limit 1
 `
 
-func (q *Queries) GetItemByID(ctx context.Context, id pgtype.UUID) (Item, error) {
+func (q *Queries) GetItemByID(ctx context.Context, id uuid.UUID) (Item, error) {
 	row := q.db.QueryRow(ctx, getItemByID, id)
 	var i Item
 	err := row.Scan(
@@ -73,6 +76,46 @@ type GetItemsParams struct {
 
 func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
 	rows, err := q.db.Query(ctx, getItems, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Item
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Type,
+			&i.WeightInGrams,
+			&i.Amount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getItemsByType = `-- name: GetItemsByType :many
+Select id, name, description, type, weight_in_grams, amount From items
+Where Type = $1
+Order By Name
+Limit $2 Offset $3
+`
+
+type GetItemsByTypeParams struct {
+	Type   string
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetItemsByType(ctx context.Context, arg GetItemsByTypeParams) ([]Item, error) {
+	rows, err := q.db.Query(ctx, getItemsByType, arg.Type, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

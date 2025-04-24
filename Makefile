@@ -1,19 +1,22 @@
+build:
+	docker-compose build
+
 up-db:
-	sudo docker-compose up -d db
+	docker-compose up -d db
 
 up-app:
-	sudo docker-compose up -d app
+	docker-compose up -d app
 
 up: up-db up-app
 
 down:
-	sudo docker-compose down
+	docker-compose down
 
 restart: down up
 
 db-shell:
-	sudo docker-compose exec db psql -U postgres -d postgres
+	docker-compose exec db psql -U postgres -d postgres
 
 app-shell:
-	sudo docker-compose exec app sh
+	docker-compose exec app sh
 

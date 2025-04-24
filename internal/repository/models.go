@@ -5,14 +5,14 @@
 package repository
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 type Item struct {
-	ID            pgtype.UUID
+	ID            uuid.UUID
 	Name          string
 	Description   string
 	Type          string
 	WeightInGrams int32
-	Amount        pgtype.Int4
+	Amount        int32
 }

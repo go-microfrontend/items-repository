@@ -7,7 +7,7 @@ CREATE TABLE items (
     description TEXT NOT NULL,
     type TEXT NOT NULL,
     weight_in_grams int NOT NULL CHECK (weight_in_grams > 0),
-    amount int DEFAULT 0
+    amount int NOT NULL DEFAULT 0
 );
 
 -- +goose Down

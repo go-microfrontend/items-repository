@@ -20,20 +20,21 @@ var itemsActivityOptions = workflow.ActivityOptions{
 	},
 }
 
-var Workflows = []any{CreateItemWF, GetItemByIDWF, GetItemsWF}
+var Workflows = []any{CreateItem, GetItemByID, GetItems, GetItemsByType}
 
-func CreateItemWF(ctx workflow.Context, arg repo.CreateItemParams) error {
+func CreateItem(ctx workflow.Context, arg repo.CreateItemParams) (string, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
-	err := workflow.ExecuteActivity(ctx, "CreateItem", arg).Get(ctx, nil)
+	var id string
+	err := workflow.ExecuteActivity(ctx, "CreateItem", arg).Get(ctx, &id)
 	if err != nil {
-		return errors.Wrap(err, "executing CreateItem activity")
+		return "", errors.Wrap(err, "executing CreateItem activity")
 	}
 
-	return nil
+	return id, nil
 }
 
-func GetItemByIDWF(ctx workflow.Context, id string) (*repo.Item, error) {
+func GetItemByID(ctx workflow.Context, id string) (*repo.Item, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
 	var item repo.Item
@@ -45,13 +46,25 @@ func GetItemByIDWF(ctx workflow.Context, id string) (*repo.Item, error) {
 	return &item, nil
 }
 
-func GetItemsWF(ctx workflow.Context, arg repo.GetItemsParams) ([]repo.Item, error) {
+func GetItems(ctx workflow.Context, arg repo.GetItemsParams) ([]repo.Item, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
 	var items []repo.Item
 	err := workflow.ExecuteActivity(ctx, "GetItems", arg).Get(ctx, &items)
 	if err != nil {
 		return nil, errors.Wrap(err, "executing GetItems activity")
+	}
+
+	return items, nil
+}
+
+func GetItemsByType(ctx workflow.Context, arg repo.GetItemsByTypeParams) ([]repo.Item, error) {
+	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
+
+	var items []repo.Item
+	err := workflow.ExecuteActivity(ctx, "GetItemsByType", arg).Get(ctx, &items)
+	if err != nil {
+		return nil, errors.Wrap(err, "executing GetItemsByType activity")
 	}
 
 	return items, nil
