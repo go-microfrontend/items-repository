@@ -6,13 +6,33 @@ package repository
 
 import (
 	"github.com/google/uuid"
+	"time"
 )
 
-type Item struct {
-	ID            uuid.UUID
-	Name          string
-	Description   string
-	Type          string
-	WeightInGrams int32
-	Amount        int32
+type Brand struct {
+	Name string
+}
+
+type Category struct {
+	Name  string
+	Label *string
+}
+
+type Product struct {
+	ProductID uuid.UUID
+	Name      string
+	Brand     *string
+	Category  *string
+	Price     int64
+	Rating    *float32
+}
+
+type ProductCharacteristic struct {
+	ProductID         uuid.UUID
+	Description       *string
+	Weight            *int32
+	QuantityInPackage *int32
+	ShelfLife         time.Duration
+	StorageConditions *string
+	Nutrition         *string
 }

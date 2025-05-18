@@ -20,52 +20,61 @@ var itemsActivityOptions = workflow.ActivityOptions{
 	},
 }
 
-var Workflows = []any{CreateItem, GetItemByID, GetItems, GetItemsByType}
-
-func CreateItem(ctx workflow.Context, arg repo.CreateItemParams) (string, error) {
-	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
-
-	var id string
-	err := workflow.ExecuteActivity(ctx, "CreateItem", arg).Get(ctx, &id)
-	if err != nil {
-		return "", errors.Wrap(err, "executing CreateItem activity")
-	}
-
-	return id, nil
+var Workflows = []any{
+	GetCategories,
+	GetProductsByCategory,
+	GetProductByID,
+	GetProductCharacteristicByID,
 }
 
-func GetItemByID(ctx workflow.Context, id string) (*repo.Item, error) {
+func GetCategories(ctx workflow.Context) ([]repo.Category, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
-	var item repo.Item
-	err := workflow.ExecuteActivity(ctx, "GetItemByID", id).Get(ctx, &item)
+	var categories []repo.Category
+	err := workflow.ExecuteActivity(ctx, "GetCategories").Get(ctx, &categories)
 	if err != nil {
-		return nil, errors.Wrap(err, "executing GetItemByID activity")
+		return nil, errors.Wrap(err, "executing GetCategories activity")
 	}
 
-	return &item, nil
+	return categories, nil
 }
 
-func GetItems(ctx workflow.Context, arg repo.GetItemsParams) ([]repo.Item, error) {
+func GetProductsByCategory(ctx workflow.Context, category string) ([]repo.Product, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
-	var items []repo.Item
-	err := workflow.ExecuteActivity(ctx, "GetItems", arg).Get(ctx, &items)
+	var products []repo.Product
+	err := workflow.ExecuteActivity(ctx, "GetProductsByCategory", category).Get(ctx, &products)
 	if err != nil {
-		return nil, errors.Wrap(err, "executing GetItems activity")
+		return nil, errors.Wrap(err, "executing GetCategories activity")
 	}
 
-	return items, nil
+	return products, nil
 }
 
-func GetItemsByType(ctx workflow.Context, arg repo.GetItemsByTypeParams) ([]repo.Item, error) {
+func GetProductByID(ctx workflow.Context, id string) (*repo.Product, error) {
 	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
 
-	var items []repo.Item
-	err := workflow.ExecuteActivity(ctx, "GetItemsByType", arg).Get(ctx, &items)
+	var product repo.Product
+	err := workflow.ExecuteActivity(ctx, "GetProductByID", id).Get(ctx, &product)
 	if err != nil {
-		return nil, errors.Wrap(err, "executing GetItemsByType activity")
+		return nil, errors.Wrap(err, "executing GetProductByID activity")
 	}
 
-	return items, nil
+	return &product, nil
+}
+
+func GetProductCharacteristicByID(
+	ctx workflow.Context,
+	id string,
+) (*repo.ProductCharacteristic, error) {
+	ctx = workflow.WithActivityOptions(ctx, itemsActivityOptions)
+
+	var characteristic repo.ProductCharacteristic
+	err := workflow.ExecuteActivity(ctx, "GetProductCharacteristicByID", id).
+		Get(ctx, &characteristic)
+	if err != nil {
+		return nil, errors.Wrap(err, "executing GetProductCharacteristicByID activity")
+	}
+
+	return &characteristic, nil
 }

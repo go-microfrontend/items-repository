@@ -20,3 +20,16 @@ db-shell:
 app-shell:
 	docker-compose exec app sh
 
+goose-up:
+	goose \
+		-dir ./db/migrations/ \
+		postgres \
+		"postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" \
+		up
+
+goose-down:
+	goose \
+		-dir ./db/migrations/ \
+		postgres \
+		"postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" \
+		down
