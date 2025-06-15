@@ -4,9 +4,11 @@ services:
     container_name: ir-app
     depends_on:
       - db
+      - cache
     environment:
       - TEMPORAL_ADDR=temporal:7233
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
+      - CACHE_URL=redis://default:redispassword@cache:6379
       - TASK_QUEUE=items-repository
     networks:
       - ir-network
@@ -27,8 +29,19 @@ services:
     networks:
       - ir-network
 
+  cache:
+    image: redis:8-alpine
+    container_name: ir-cache
+    restart: always
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - cachedata:/data
+    networks:
+      - ir-network
+
 volumes:
   pgdata:
+  cachedata:
 
 networks:
   ir-network:

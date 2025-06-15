@@ -4,11 +4,14 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 
+	"github.com/go-microfrontend/items-repository/internal/cache"
 	"github.com/go-microfrontend/items-repository/internal/processes"
 	"github.com/go-microfrontend/items-repository/internal/repository"
 )
@@ -34,7 +37,16 @@ func main() {
 	defer conn.Close()
 
 	repo := repository.New(conn)
-	activities := processes.New(repo)
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("CACHE_URL"),
+		Password: "",
+		DB:       0,
+	})
+
+	cache := cache.NewCache(rdb, time.Hour)
+
+	activities := processes.New(repo, cache)
 
 	w := worker.New(client, os.Getenv("TASK_QUEUE"), worker.Options{})
 	for _, workflow := range processes.Workflows {

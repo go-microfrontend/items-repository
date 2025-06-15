@@ -1,3 +1,7 @@
+REDIS_PASSWORD := redispassword
+REDIS_PORT := 6379
+REDIS_URL := redis://default:$(REDIS_PASSWORD)@localhost:$(REDIS_PORT)
+
 build:
 	docker-compose build
 
@@ -19,6 +23,9 @@ db-shell:
 
 app-shell:
 	docker-compose exec app sh
+
+cache-cli:
+	docker-compose exec cache redis-cli
 
 goose-up:
 	goose \
