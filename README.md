@@ -6,4 +6,27 @@ Go-сервис для обработки информации о товарах
 
 ## Зависимости
 
-Для запуска экземпляра воркера необходимо, чтобы работал Temporal-кластер, представленный в [orchestration](https://github.com/go-microfrontend/orchestration) репозитории.
+Для запуска экземпляра воркера необходимо, чтобы был установлен Docker и работал Temporal-кластер, представленный в [orchestration](https://github.com/go-microfrontend/orchestration) репозитории.
+
+## Запуск
+
+Для запуска необходимо 
+1. Разкомментировать строчки:
+```
+# ports:
+    #   - "5432:5432"
+```
+в docker-compose.yaml.
+
+2. Запустить и накататить миграции в БД после установки мигратора *goose*:
+```
+go install github.com/pressly/goose/v3/cmd/goose@latest
+make up-db
+make goose-up
+```
+
+3. Запустить сам сервис:
+```
+make build
+make up
+```
